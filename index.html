@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Market — Панель управления</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.07);
+    --accent: #e8c84a;
+    --accent2: #4a9ee8;
+    --accent3: #e84a6f;
+    --text: #f0f0f0;
+    --muted: #6b6b80;
+    --green: #4ae89a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Golos Text', sans-serif;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,200,74,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 80%, rgba(74,158,232,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .app {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .logo {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 0 8px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .logo span {
+    display: block;
+    font-size: 9px;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 3px;
+    font-family: 'Golos Text', sans-serif;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--muted);
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(232,200,74,0.1); color: var(--accent); }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-section {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 12px 12px 4px;
+    font-weight: 600;
+  }
+  .sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
+  .store-badge {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .store-avatar {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), #c8a830);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .store-name { font-size: 13px; font-weight: 600; }
+  .store-role { font-size: 11px; color: var(--muted); }
+  .main { padding: 32px 36px; display: flex; flex-direction: column; gap: 28px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; }
+  .page-title { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 600; }
+  .page-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .date-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .notif-btn {
+    width: 38px; height: 38px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; font-size: 16px;
+  }
+  .notif-dot {
+    position: absolute; top: 7px; right: 7px;
+    width: 7px; height: 7px;
+    background: var(--accent3);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+  .kpi-card:nth-child(1){animation-delay:0.05s}
+  .kpi-card:nth-child(2){animation-delay:0.1s}
+  .kpi-card:nth-child(3){animation-delay:0.15s}
+  .kpi-card:nth-child(4){animation-delay:0.2s}
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .kpi-card::after {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.06;
+    transform: translate(30%, -30%);
+  }
+  .kpi-card.yellow::after{background:var(--accent)}
+  .kpi-card.blue::after{background:var(--accent2)}
+  .kpi-card.red::after{background:var(--accent3)}
+  .kpi-card.green::after{background:var(--green)}
+  .kpi-icon { font-size: 22px; margin-bottom: 14px; display: block; }
+  .kpi-value { font-family: 'Unbounded', sans-serif; font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+  .kpi-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .kpi-change {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 8px; border-radius: 20px; margin-top: 10px;
+  }
+  .kpi-change.up{background:rgba(74,232,154,0.12);color:var(--green)}
+  .kpi-change.down{background:rgba(232,74,111,0.12);color:var(--accent3)}
+  .content-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    animation: fadeUp 0.5s ease both;
+    animation-delay: 0.25s;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .card-title { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 600; }
+  .card-action { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
+  .orders-table { width: 100%; border-collapse: collapse; }
+  .orders-table th {
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted);
+    text-align: left; padding: 0 12px 12px; font-weight: 600;
+  }
+  .orders-table td { padding: 12px; font-size: 13.5px; border-top: 1px solid var(--border); }
+  .orders-table tr:hover td { background: var(--surface2); }
+  .order-id { font-family: 'Unbounded', sans-serif; font-size: 11px; color: var(--muted); }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+  .status-badge.delivered{background:rgba(74,232,154,0.12);color:var(--green)}
+  .status-badge.delivered::before{background:var(--green)}
+  .status-badge.transit{background:rgba(74,158,232,0.12);color:var(--accent2)}
+  .status-badge.transit::before{background:var(--accent2)}
+  .status-badge.pending{background:rgba(232,200,74,0.12);color:var(--accent)}
+  .status-badge.pending::before{background:var(--accent)}
+  .status-badge.cancelled{background:rgba(232,74,111,0.12);color:var(--accent3)}
+  .status-badge.cancelled::before{background:var(--accent3)}
+  .right-col { display: flex; flex-direction: column; gap: 16px; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 100px; margin-top: 8px; }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar {
+    width: 100%; border-radius: 6px 6px 0 0;
+    background: var(--surface2); position: relative; overflow: hidden;
+    min-height: 8px; cursor: pointer;
+  }
+  .bar:hover { background: rgba(232,200,74,0.15); }
+  .bar-fill {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(to top, var(--accent), rgba(232,200,74,0.4));
+    animation: barGrow 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+    transform-origin: bottom;
+  }
+  @keyframes barGrow { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+  .bar-label { font-size: 10px; color: var(--muted); }
+  .delivery-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .delivery-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px; background: var(--surface2); border-radius: 10px;
+  }
+  .courier-avatar {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .courier-name { font-size: 13px; font-weight: 600; }
+  .courier-addr { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .courier-status { margin-left: auto; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .courier-status.active{background:rgba(74,232,154,0.12);color:var(--green)}
+  .courier-status.way{background:rgba(74,158,232,0.12);color:var(--accent2)}
+  .survey-question { font-size: 14px; font-weight: 600; margin-bottom: 14px; line-height: 1.4; }
+  .survey-options { display: flex; flex-direction: column; gap: 8px; }
+  .survey-option {
+    position: relative; background: var(--surface2);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 13px; overflow: hidden; cursor: pointer;
+  }
+  .survey-bar { position: absolute; top: 0; left: 0; bottom: 0; border-radius: 10px; opacity: 0.15; }
+  .survey-option:nth-child(1) .survey-bar{background:var(--green);width:68%}
+  .survey-option:nth-child(2) .survey-bar{background:var(--accent2);width:22%}
+  .survey-option:nth-child(3) .survey-bar{background:var(--accent3);width:10%}
+  .survey-row { position: relative; z-index: 1; display: flex; justify-content: space-between; }
+  .survey-pct { font-weight: 700; color: var(--text); font-size: 13px; }
+  .loyalty-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .loyalty-item { background: var(--surface2); border-radius: 12px; padding: 14px; text-align: center; }
+  .loyalty-num { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700; color: var(--accent); }
+  .loyalty-desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; animation: fadeUp 0.5s ease both; animation-delay: 0.35s; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">MY MARKET<span>Панель управления</span></div>
+    <div class="nav-item active"><span class="nav-icon">◈</span> Обзор</div>
+    <div class="nav-item"><span class="nav-icon">📦</span> Заказы</div>
+    <div class="nav-item"><span class="nav-icon">🛵</span> Доставка</div>
+    <div class="nav-section">Клиенты</div>
+    <div class="nav-item"><span class="nav-icon">👥</span> База клиентов</div>
+    <div class="nav-item"><span class="nav-icon">⭐</span> Лояльность</div>
+    <div class="nav-item"><span class="nav-icon">📊</span> Опросы</div>
+    <div class="nav-section">Маркетинг</div>
+    <div class="nav-item"><span class="nav-icon">🏷️</span> Акции</div>
+    <div class="nav-item"><span class="nav-icon">📣</span> Уведомления</div>
+    <div class="nav-section">Система</div>
+    <div class="nav-item"><span class="nav-icon">⚙️</span> Настройки</div>
+    <div class="sidebar-footer">
+      <div class="store-badge">
+        <div class="store-avatar">🛒</div>
+        <div><div class="store-name">My Market</div><div class="store-role">Администратор</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Обзор</div>
+        <div class="page-subtitle">Добро пожаловать — вот что происходит сегодня</div>
+      </div>
+      <div class="topbar-right">
+        <div class="date-badge">28 апреля 2026</div>
+        <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card yellow">
+        <span class="kpi-icon">📦</span>
+        <div class="kpi-value">247</div>
+        <div class="kpi-label">Заказов сегодня</div>
+        <div class="kpi-change up">↑ 18% к вчера</div>
+      </div>
+      <div class="kpi-card green">
+        <span class="kpi-icon">💰</span>
+        <div class="kpi-value">₽184 200</div>
+        <div class="kpi-label">Выручка сегодня</div>
+        <div class="kpi-change up">↑ 12% к вчера</div>
+      </div>
+      <div class="kpi-card blue">
+        <span class="kpi-icon">👥</span>
+        <div class="kpi-value">4 831</div>
+        <div class="kpi-label">Активных клиентов</div>
+        <div class="kpi-change up">↑ 64 новых</div>
+      </div>
+      <div class="kpi-card red">
+        <span class="kpi-icon">🛵</span>
+        <div class="kpi-value">38 мин</div>
+        <div class="kpi-label">Среднее время доставки</div>
+        <div class="kpi-change down">↓ нужно улучшить</div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Последние заказы</div>
+          <div class="card-action">Все заказы →</div>
+        </div>
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>№ Заказа</th><th>Клиент</th><th>Сумма</th><th>Адрес</th><th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="order-id">#4821</span></td><td>Ислам К.</td><td>₽2 340</td><td>пр. Путина, 18</td><td><span class="status-badge delivered">Доставлен</span></td></tr>
+            <tr><td><span class="order-id">#4820</span></td><td>Хеда М.</td><td>₽1 870</td><td>ул. Маяковского, 5</td><td><span class="status-badge transit">В пути</span></td></tr>
+            <tr><td><span class="order-id">#4819</span></td><td>Адам Б.</td><td>₽4 120</td><td>пр. Кадырова, 32</td><td><span class="status-badge transit">В пути</span></td></tr>
+            <tr><td><span class="order-id">#4818</span></td><td>Зарема Д.</td><td>₽980</td><td>ул. Гагарина, 11</td><td><span class="status-badge delivered">Доставлен</span></td></tr>
+            <tr><td><span class="order-id">#4817</span></td><td>Муса Х.</td><td>₽3 450</td><td>ул. Розы, 7</td><td><span class="status-badge pending">Собирается</span></td></tr>
+            <tr><td><span class="order-id">#4816</span></td><td>Лейла А.</td><td>₽620</td><td>ул. Ленина, 44</td><td><span class="status-badge cancelled">Отменён</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="right-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Заказы за неделю</div></div>
+          <div class="chart-bars">
+            <div class="bar-wrap"><div class="bar" style="height:100px"><div class="bar-fill" style="height:55%;animation-delay:0.1s"></div></div><div class="bar-label">Пн</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:100px"><div class="bar-fill" style="height:72%;animation-delay:0.15s"></div></div><div class="bar-label">Вт</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:100px"><div class="bar-fill" style="height:48%;animation-delay:0.2s"></div></div><div class="bar-label">Ср</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:100px"><div class="bar-fill" style="height:90%;animation-delay:0.25s"></div></div><div class="bar-label">Чт</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:100px"><div class="bar-fill" style="height:65%;animation-delay:0.3s"></div></div><div class="bar-label">Пт</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:100px"><div class="bar-fill" style="height:88%;animation-delay:0.35s"></div></div><div class="bar-label">Сб</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:100px"><div class="bar-fill" style="height:100%;animation-delay:0.4s"></div></div><div class="bar-label">Вс</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Опрос клиентов</div>
+            <div class="card-action">Создать →</div>
+          </div>
+          <div class="survey-question">Оцените скорость доставки</div>
+          <div class="survey-options">
+            <div class="survey-option"><div class="survey-bar"></div><div class="survey-row"><span>😊 Быстро</span><span class="survey-pct">68%</span></div></div>
+            <div class="survey-option"><div class="survey-bar"></div><div class="survey-row"><span>😐 Нормально</span><span class="survey-pct">22%</span></div></div>
+            <div class="survey-option"><div class="survey-bar"></div><div class="survey-row"><span>😞 Долго</span><span class="survey-pct">10%</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Курьеры</div>
+          <div class="card-action">Все →</div>
+        </div>
+        <div class="delivery-list">
+          <div class="delivery-item">
+            <div class="courier-avatar" style="background:rgba(74,232,154,0.15)">🛵</div>
+            <div><div class="courier-name">Аслан Г.</div><div class="courier-addr">→ пр. Кадырова, 32</div></div>
+            <div class="courier-status way">В пути</div>
+          </div>
+          <div class="delivery-item">
+            <div class="courier-avatar" style="background:rgba(74,158,232,0.15)">🛵</div>
+            <div><div class="courier-name">Рустам М.</div><div class="courier-addr">→ ул. Маяковского, 5</div></div>
+            <div class="courier-status way">В пути</div>
+          </div>
+          <div class="delivery-item">
+            <div class="courier-avatar" style="background:rgba(232,200,74,0.15)">🛵</div>
+            <div><div class="courier-name">Билал Д.</div><div class="courier-addr">Свободен</div></div>
+            <div class="courier-status active">Свободен</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Программа лояльности</div></div>
+        <div class="loyalty-stats">
+          <div class="loyalty-item"><div class="loyalty-num">2 140</div><div class="loyalty-desc">Участников</div></div>
+          <div class="loyalty-item"><div class="loyalty-num">₽84К</div><div class="loyalty-desc">Бонусов выдано</div></div>
+          <div class="loyalty-item"><div class="loyalty-num">44%</div><div class="loyalty-desc">Повторных покупок</div></div>
+          <div class="loyalty-item"><div class="loyalty-num">3</div><div class="loyalty-desc">Акции активны</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Уведомления</div></div>
+        <div class="delivery-list">
+          <div class="delivery-item">
+            <div class="courier-avatar" style="background:rgba(232,200,74,0.15)">⚠️</div>
+            <div><div class="courier-name" style="font-size:12px">Заканчивается молоко</div><div class="courier-addr">Остаток: 12 шт.</div></div>
+          </div>
+          <div class="delivery-item">
+            <div class="courier-avatar" style="background:rgba(74,232,154,0.15)">🎉</div>
+            <div><div class="courier-name" style="font-size:12px">Акция «Пятница»</div><div class="courier-addr">Старт через 2 часа</div></div>
+          </div>
+          <div class="delivery-item">
+            <div class="courier-avatar" style="background:rgba(232,74,111,0.15)">❌</div>
+            <div><div class="courier-name" style="font-size:12px">Отмена #4816</div><div class="courier-addr">Клиент: Лейла А.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>
